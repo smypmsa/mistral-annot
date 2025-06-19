@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "doc-extractor"
+version = "0.1.0"
+description = "Document data extraction using Mistral AI"
+dependencies = [
+    "mistralai>=1.2.0",
+    "python-dotenv",
+    "pillow",
+    "streamlit",
+    "pydantic>=2.0.0",
+    "pymupdf",
+]
+
+[project.scripts]
+doc-extract = "doc_extractor.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/doc_extractor"]
