@@ -6,7 +6,6 @@ import io
 from doc_extractor.config import Config
 
 def load_results():
-    """Load all extraction results"""
     results = []
     for json_path in Config.OUTPUT_DIR.glob("*.json"):
         with open(json_path) as f:
@@ -14,7 +13,6 @@ def load_results():
     return results
 
 def display_document(doc_path):
-    """Display document (PDF or image) in Streamlit"""
     if not doc_path.exists():
         st.error("Original document not found")
         return
@@ -23,21 +21,17 @@ def display_document(doc_path):
     
     if file_ext == '.pdf':
         try:
-            import fitz  # PyMuPDF
+            import fitz
             
-            # Open PDF with PyMuPDF
             doc = fitz.open(str(doc_path))
             
-            # Convert first page to image
-            page = doc[0]  # First page
-            pix = page.get_pixmap(matrix=fitz.Matrix(1.5, 1.5))  # 1.5x zoom for better quality
+            page = doc[0]
+            pix = page.get_pixmap(matrix=fitz.Matrix(1.5, 1.5))
             img_data = pix.tobytes("png")
             
-            # Convert to PIL Image and display
             image = Image.open(io.BytesIO(img_data))
             st.image(image, use_column_width=True)
             
-            # Show page info
             st.caption(f"📄 Page 1 of {len(doc)} | Size: {page.rect.width:.0f}x{page.rect.height:.0f}pt")
             
             doc.close()
@@ -64,7 +58,6 @@ def display_document(doc_path):
 def main():
     st.title("📄 Document Extraction Viewer")
     
-    # Check PyMuPDF availability
     try:
         import fitz
         st.sidebar.success("✅ PyMuPDF available")
@@ -78,11 +71,9 @@ def main():
         st.warning("No extraction results found. Run the extractor first.")
         return
     
-    # Sidebar for document selection
     doc_names = [Path(r["source_file"]).stem for r in results]
     selected_doc = st.sidebar.selectbox("Select Document", doc_names)
     
-    # Find selected result
     result = next(r for r in results if Path(r["source_file"]).stem == selected_doc)
     
     col1, col2 = st.columns(2)
@@ -93,51 +84,57 @@ def main():
         display_document(doc_path)
     
     with col2:
-        st.subheader("Extracted Data")
+        st.subheader("Extracted Invoice Data")
         
-        # Display basic fields (skip metadata and line_items)
-        skip_fields = {"source_file", "ocr_text", "error", "raw_annotation", "line_items", "bbox_annotations", "extraction_method"}
+        # Display extracted invoice fields prominently
+        skip_fields = {"source_file", "ocr_text", "error", "bbox_annotations", "extraction_method", "total_regions"}
         for key, value in result.items():
-            if key not in skip_fields:
+            if key not in skip_fields and value:
                 st.text_input(key.replace("_", " ").title(), str(value), disabled=True)
         
-        # Display line items in a structured way
-        if "line_items" in result and isinstance(result["line_items"], list):
+        # Display line items prominently if available
+        if "line_items" in result and result["line_items"]:
             st.subheader("Line Items")
-            for i, item in enumerate(result["line_items"], 1):
-                st.write(f"**Item {i}:**")
-                col_a, col_b = st.columns(2)
-                with col_a:
-                    st.text_input(f"Description {i}", item.get("description", ""), disabled=True, key=f"desc_{i}")
-                    st.text_input(f"Quantity {i}", item.get("quantity", ""), disabled=True, key=f"qty_{i}")
-                with col_b:
-                    st.text_input(f"Unit Price {i}", item.get("unit_price", ""), disabled=True, key=f"unit_{i}")
-                    st.text_input(f"Total Price {i}", item.get("total_price", ""), disabled=True, key=f"total_{i}")
-                st.divider()
-        elif "line_items" in result:
-            # Fallback for string line_items
-            st.subheader("Line Items")
-            st.text_area("Items", str(result["line_items"]), disabled=True)
+            st.text_area("All Line Items", result["line_items"], height=150, disabled=True)
         
-        # Display bbox annotations if available
+        st.subheader("Visual Regions Analysis")
+        
+        if "total_regions" in result:
+            st.metric("Total Visual Regions Detected", result["total_regions"])
+        
         if "bbox_annotations" in result and result["bbox_annotations"]:
-            st.subheader("Regional Analysis")
             for i, bbox in enumerate(result["bbox_annotations"], 1):
-                with st.expander(f"Region {i} - {bbox['annotation'].get('type', 'unknown')}"):
-                    st.write(f"**Type:** {bbox['annotation'].get('type', 'N/A')}")
-                    st.write(f"**Content:** {bbox['annotation'].get('content', 'N/A')}")
-                    st.write(f"**Confidence:** {bbox['annotation'].get('confidence', 'N/A')}")
+                annotation = bbox.get('annotation', {})
+                image_type = annotation.get('image_type', 'unknown')
+                description = annotation.get('description', 'N/A')
+                
+                type_colors = {
+                    'graph': '📊',
+                    'text': '📝',
+                    'table': '📋',
+                    'image': '🖼️'
+                }
+                icon = type_colors.get(image_type, '⬛')
+                
+                with st.expander(f"{icon} Visual Region {i}: {image_type.title()}"):
+                    st.write(f"**Type:** {image_type}")
+                    st.write(f"**Description:** {description}")
+                    
+                    if "bbox_coordinates" in bbox:
+                        coords = bbox["bbox_coordinates"]
+                        st.write(f"**Position:** ({coords['top_left_x']}, {coords['top_left_y']}) to ({coords['bottom_right_x']}, {coords['bottom_right_y']})")
+                    
+                    st.json(annotation)
+        else:
+            st.info("No visual regions detected in this document.")
         
-        # Show extraction method
         if "extraction_method" in result:
-            st.info(f"Extraction method: {result['extraction_method']}")
+            st.success(f"✅ Extraction method: {result['extraction_method']}")
         
-        # Show OCR text if available
         if "ocr_text" in result:
             st.subheader("OCR Text")
             st.text_area("Full Text", result["ocr_text"], height=200, disabled=True)
         
-        # Show error details if present
         if "error" in result:
             st.error(f"Error: {result['error']}")
             if "raw_annotation" in result:

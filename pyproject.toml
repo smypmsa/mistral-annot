@@ -20,3 +20,8 @@ doc-extract = "doc_extractor.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/doc_extractor"]
+
+[dependency-groups]
+dev = [
+    "gitingest>=0.1.4",
+]
