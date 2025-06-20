@@ -11,5 +11,10 @@ wheels/
 .env
 
 # Local data
-data
 digest.txt
+data/input/*
+data/output/*
+!data/input/sample-invoice.pdf
+!data/input/wordpress-pdf-invoice-plugin-sample.pdf
+!data/output/sample-invoice.json
+!data/output/wordpress-pdf-invoice-plugin-sample.json
