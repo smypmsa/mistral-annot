@@ -2,6 +2,8 @@
 
 import { useProcessing } from '@/contexts/ProcessingContext';
 import { PDFViewer } from './PDFViewer';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export function Results() {
   const { isProcessing, currentFile, result, error } = useProcessing();
@@ -45,9 +47,12 @@ export function Results() {
         {/* Extracted Data */}
         <div className="w-full rounded-xl border border-border bg-background p-6 shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Extracted Data</h2>
-          <div className="rounded-lg bg-secondary/50 p-4">
-            <pre className="overflow-x-auto whitespace-pre-wrap max-h-[600px] text-sm font-mono">
-              {JSON.stringify(result.data, null, 2)}
+          <div className="mt-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 overflow-auto">
+            <h3 className="text-lg font-semibold">Extraction Results</h3>
+            <pre className="text-sm">
+              <SyntaxHighlighter language="json" style={vscDarkPlus}>
+                {JSON.stringify(result.data, null, 2)}
+              </SyntaxHighlighter>
             </pre>
           </div>
         </div>
