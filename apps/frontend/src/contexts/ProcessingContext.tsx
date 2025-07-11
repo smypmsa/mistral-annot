@@ -1,10 +1,15 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
+interface ProcessedResult {
+  file: File | Blob;
+  data: any;
+}
+
 interface ProcessingState {
   isProcessing: boolean;
   currentFile: string | null;
-  result: any | null;
+  result: ProcessedResult | null;
   error: string | null;
 }
 
@@ -30,6 +35,10 @@ export function ProcessingProvider({ children }: { children: ReactNode }) {
   };
 
   const resetState = () => {
+    // Clean up any existing blob URLs
+    if (state.result?.file instanceof Blob) {
+      URL.revokeObjectURL(URL.createObjectURL(state.result.file));
+    }
     setState(initialState);
   };
 
