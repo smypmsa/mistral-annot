@@ -1,12 +1,12 @@
 declare module 'react-pdf' {
-  import { ComponentType, ReactElement } from 'react';
+  import { ComponentType, ReactElement, ReactNode } from 'react';
 
   export interface DocumentProps {
     file: string | File | Blob;
     onLoadSuccess?: (pdf: { numPages: number }) => void;
     onLoadError?: (error?: Error) => void;
     className?: string;
-    children?: ReactElement | ReactElement[];
+    children?: ReactNode;
     loading?: ReactElement;
     error?: ReactElement;
   }
@@ -17,6 +17,7 @@ declare module 'react-pdf' {
     renderAnnotationLayer?: boolean;
     className?: string;
     scale?: number;
+    width?: number;
     loading?: ReactElement;
     error?: ReactElement;
   }
