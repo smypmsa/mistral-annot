@@ -15,14 +15,8 @@
      npm --version
      ```
 
-2. **⚡ uv** (Fast Python package installer and environment manager):
-   ```bash
-   # Unix/macOS
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-
-   # Windows PowerShell
-   powershell -c "(Invoke-WebRequest -Uri https://astral.sh/uv/install.ps1 -UseBasicParsing).Content | python -"
-   ```
+2. **⚡ uv** (Python package manager):
+   - Download and install from [Astral](https://docs.astral.sh/uv/getting-started/installation/)
 
 3. **🔑 Mistral API Key**:
    - Sign up at [mistral.ai](https://mistral.ai)
