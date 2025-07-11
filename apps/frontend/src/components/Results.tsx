@@ -41,7 +41,11 @@ export function Results() {
         {/* PDF Viewer */}
         <div className="w-full rounded-xl border border-border bg-background p-6 shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Original Document</h2>
-          {pdfUrl && <PDFViewer fileUrl={pdfUrl} />}
+          {pdfUrl && (
+            <div className="mt-4 border rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800">
+              <PDFViewer fileUrl={pdfUrl} />
+            </div>
+          )}
         </div>
 
         {/* Extracted Data */}
