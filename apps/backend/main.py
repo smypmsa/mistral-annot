@@ -94,3 +94,7 @@ async def process_multiple_documents(files: list[UploadFile] = File(...)):
         "total_processed": len(results),
         "results": results
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

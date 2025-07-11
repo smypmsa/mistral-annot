@@ -3,14 +3,14 @@
 import { useProcessing } from '@/contexts/ProcessingContext';
 
 export function Results() {
-  const { isProcessing, result, error } = useProcessing();
+  const { isProcessing, currentFile, result, error } = useProcessing();
 
   if (isProcessing) {
     return (
-      <div className="w-full max-w-xl mx-auto mt-8 p-4">
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <span className="ml-3">Processing...</span>
+      <div className="w-full max-w-xl mx-auto mt-8">
+        <div className="flex items-center justify-center space-x-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span>Processing {currentFile}...</span>
         </div>
       </div>
     );
@@ -18,9 +18,9 @@ export function Results() {
 
   if (error) {
     return (
-      <div className="w-full max-w-xl mx-auto mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <h3 className="text-red-800 font-semibold">Error</h3>
-        <p className="text-red-600">{error}</p>
+      <div className="w-full max-w-xl mx-auto mt-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+        <h3 className="text-red-500 font-semibold">Error</h3>
+        <p className="text-red-400 mt-1">{error}</p>
       </div>
     );
   }
@@ -30,10 +30,10 @@ export function Results() {
   }
 
   return (
-    <div className="w-full max-w-xl mx-auto mt-8">
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Extracted Data</h2>
-        <pre className="bg-gray-50 p-4 rounded-lg overflow-auto max-h-96">
+    <div className="w-full mx-auto rounded-xl border border-border bg-background p-6 shadow-sm">
+      <h2 className="text-xl font-semibold mb-4">Extracted Data</h2>
+      <div className="rounded-lg bg-secondary/50 p-4">
+        <pre className="overflow-auto max-h-96 text-sm">
           {JSON.stringify(result, null, 2)}
         </pre>
       </div>
