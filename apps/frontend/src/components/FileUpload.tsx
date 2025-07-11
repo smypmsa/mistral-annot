@@ -24,32 +24,22 @@ export function FileUpload() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const uploadResponse = await fetch('/api/upload', {
+      const response = await fetch('/process/document', {
         method: 'POST',
         body: formData,
       });
 
-      if (!uploadResponse.ok) {
-        throw new Error('Upload failed');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Processing failed');
       }
 
-      const { filename } = await uploadResponse.json();
-
-      // Start processing
-      const processResponse = await fetch(`/api/process/${filename}`, {
-        method: 'POST',
-      });
-
-      if (!processResponse.ok) {
-        throw new Error('Processing failed');
-      }
-
-      const result = await processResponse.json();
+      const result = await response.json();
       
       setProcessingState({
         isProcessing: false,
-        currentFile: filename,
-        result: result.data,
+        currentFile: result.filename,
+        result: result.result,
         error: null,
       });
     } catch (error) {
