@@ -46,7 +46,7 @@ export function Results() {
         <div className="w-full rounded-xl border border-border bg-background p-6 shadow-sm">
           <h2 className="text-xl font-semibold mb-4">Extracted Data</h2>
           <div className="rounded-lg bg-secondary/50 p-4">
-            <pre className="overflow-auto max-h-[600px] text-sm">
+            <pre className="overflow-x-auto whitespace-pre-wrap max-h-[600px] text-sm font-mono">
               {JSON.stringify(result.data, null, 2)}
             </pre>
           </div>

@@ -86,7 +86,7 @@ export function PDFViewer({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-[600px] overflow-y-auto">
       <div className="flex flex-col items-center">
         {isLoading && <LoadingSpinner />}
         <Document
