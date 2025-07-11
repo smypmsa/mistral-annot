@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import config from '@/config';
 
 export function FileUpload() {
-  const { isProcessing, setProcessingState } = useProcessing();
+  const { isProcessing, setProcessingState, resetState } = useProcessing();
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -26,86 +26,53 @@ export function FileUpload() {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const processFile = async (file: File) => {
-    setProcessingState({ isProcessing: true, error: null, currentFile: file.name });
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch(`${config.apiUrl}/process/document`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Processing failed');
-      }
-
-      const result = await response.json();
-      setProcessingState({
-        isProcessing: false,
-        currentFile: file.name,
-        result: {
-          file: file,
-          data: result.result
-        },
-        error: null,
-      });
-    } catch (error) {
-      setProcessingState({
-        isProcessing: false,
-        error: error instanceof Error ? error.message : 'An error occurred',
-      });
-    }
-  };
-
-  const processAllFiles = async () => {
+  const processFiles = async () => {
     if (files.length === 0) return;
-    
+
+    resetState();
     setProcessingState({ isProcessing: true, error: null });
 
-    try {
-      // For now, just process the first file
-      // TODO: Implement batch processing with proper UI for multiple files
-      const file = files[0];
-      const formData = new FormData();
-      formData.append('file', file);
+    const newResults = [];
 
-      const response = await fetch(`${config.apiUrl}/process/document`, {
-        method: 'POST',
-        body: formData,
-      });
+    for (const file of files) {
+      setProcessingState({ currentFile: file.name });
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
 
-      if (!response.ok) {
-        throw new Error('Processing failed');
-      }
+        const response = await fetch(`${config.apiUrl}/process/document`, {
+          method: 'POST',
+          body: formData,
+        });
 
-      const result = await response.json();
-      setProcessingState({
-        isProcessing: false,
-        currentFile: file.name,
-        result: {
+        if (!response.ok) {
+          throw new Error(`Processing failed for ${file.name}`);
+        }
+
+        const result = await response.json();
+        newResults.push({
           file: file,
-          data: result.result
-        },
-        error: null,
-      });
-    } catch (error) {
-      setProcessingState({
-        isProcessing: false,
-        error: error instanceof Error ? error.message : 'An error occurred',
-      });
+          fileName: file.name,
+          data: result.result,
+        });
+      } catch (error) {
+        setProcessingState({
+          isProcessing: false,
+          error: error instanceof Error ? error.message : 'An error occurred',
+        });
+        return; // Stop processing if one file fails
+      }
     }
+
+    setProcessingState({
+      isProcessing: false,
+      results: newResults,
+      currentFile: null,
+      error: null,
+    });
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-    },
-    multiple: true,
-  });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
     <div className="w-full max-w-xl mx-auto">
@@ -163,7 +130,7 @@ export function FileUpload() {
               Clear all
             </button>
             <button
-              onClick={processAllFiles}
+              onClick={processFiles}
               disabled={isProcessing}
               className="px-3 py-1 text-sm rounded bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >

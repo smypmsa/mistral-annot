@@ -3,28 +3,32 @@ import type { ReactNode } from 'react';
 
 interface ProcessedResult {
   file: File | Blob;
+  fileName: string;
   data: any;
 }
 
 interface ProcessingState {
   isProcessing: boolean;
+  results: ProcessedResult[];
   currentFile: string | null;
-  result: ProcessedResult | null;
   error: string | null;
+  activeResultIndex: number;
 }
 
 interface ProcessingContextType extends ProcessingState {
   setProcessingState: (state: Partial<ProcessingState>) => void;
   resetState: () => void;
+  setActiveResultIndex: (index: number) => void;
 }
 
 const ProcessingContext = createContext<ProcessingContextType | undefined>(undefined);
 
 const initialState: ProcessingState = {
   isProcessing: false,
+  results: [],
   currentFile: null,
-  result: null,
   error: null,
+  activeResultIndex: 0,
 };
 
 export function ProcessingProvider({ children }: { children: ReactNode }) {
@@ -34,16 +38,24 @@ export function ProcessingProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, ...newState }));
   };
 
+  const setActiveResultIndex = (index: number) => {
+    setState((prev) => ({ ...prev, activeResultIndex: index }));
+  };
+
   const resetState = () => {
     // Clean up any existing blob URLs
-    if (state.result?.file instanceof Blob) {
-      URL.revokeObjectURL(URL.createObjectURL(state.result.file));
-    }
+    state.results.forEach((result) => {
+      if (result.file instanceof Blob) {
+        URL.revokeObjectURL(URL.createObjectURL(result.file));
+      }
+    });
     setState(initialState);
   };
 
   return (
-    <ProcessingContext.Provider value={{ ...state, setProcessingState, resetState }}>
+    <ProcessingContext.Provider
+      value={{ ...state, setProcessingState, resetState, setActiveResultIndex }}
+    >
       {children}
     </ProcessingContext.Provider>
   );

@@ -6,7 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export function Results() {
-  const { isProcessing, currentFile, result, error } = useProcessing();
+  const { isProcessing, currentFile, results, error, activeResultIndex, setActiveResultIndex } = useProcessing();
 
   if (isProcessing) {
     return (
@@ -28,15 +28,36 @@ export function Results() {
     );
   }
 
-  if (!result) {
+  if (results.length === 0) {
+    return null;
+  }
+
+  const activeResult = results[activeResultIndex];
+  if (!activeResult) {
     return null;
   }
 
   // Convert the Blob URL for PDF viewing
-  const pdfUrl = result.file instanceof Blob ? URL.createObjectURL(result.file) : '';
+  const pdfUrl = activeResult.file instanceof Blob ? URL.createObjectURL(activeResult.file) : '';
 
   return (
     <div className="w-full mx-auto mt-8 space-y-6">
+      {results.length > 1 && (
+        <div className="flex justify-center">
+          <select
+            value={activeResultIndex}
+            onChange={(e) => setActiveResultIndex(Number(e.target.value))}
+            className="px-4 py-2 rounded-md border border-border bg-background text-foreground"
+          >
+            {results.map((result, index) => (
+              <option key={index} value={index}>
+                {result.fileName}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* PDF Viewer */}
         <div className="w-full rounded-xl border border-border bg-background p-6 shadow-sm">
@@ -55,7 +76,7 @@ export function Results() {
             <h3 className="text-lg font-semibold">Extraction Results</h3>
             <pre className="text-sm">
               <SyntaxHighlighter language="json" style={vscDarkPlus}>
-                {JSON.stringify(result.data, null, 2)}
+                {JSON.stringify(activeResult.data, null, 2)}
               </SyntaxHighlighter>
             </pre>
           </div>
