@@ -1,38 +1,45 @@
-> [!NOTE]  
-> [Mistral Document AI API](https://docs.mistral.ai/capabilities/OCR/annotations/) provides good functionality out-of-the-box for extracting structured data from PDFs. However, displaying detected values directly on the PDF requires additional logic not provided by Mistral (and not implemented in this repo). The `bbox_annotation` feature is useful for documents containing images (charts, graphs, etc.)—it returns descriptions and coordinates—but cannot be used for field extraction. For structured field output, use `document_annotation`, though it doesn't return field coordinates.
+# Document Extractor
 
-# 📄 Document Extractor
+## Overview
 
-> Extract structured data from invoices using **Mistral Document AI** - a modern full-stack application with Python backend and Next.js frontend.
+Advanced invoice data extraction platform leveraging Mistral Document AI capabilities. Full-stack solution combining Python backend processing with modern web interface for structured document analysis.
 
-## 🚀 Prerequisites
+## Technical Architecture
 
-1. **📦 Node.js and npm**: 
-   - Download and install from [nodejs.org](https://nodejs.org/) (version 18 or higher recommended)
-   - Verify installation:
-     ```bash
-     node --version
-     npm --version
-     ```
+**Backend**: Python-based API server with Mistral Document AI integration  
+**Frontend**: Next.js web application with real-time processing interface  
+**Processing Engine**: Mistral Document AI with annotation capabilities
 
-2. **⚡ uv** (Python package manager):
-   - Download and install from [Astral](https://docs.astral.sh/uv/getting-started/installation/)
+### AI Processing Capabilities
+- **Document Annotation**: Structured field extraction without coordinate data
+- **Bbox Annotation**: Image content analysis with coordinate mapping (charts, graphs)
+- **Field Recognition**: Automated identification of standard invoice elements
 
-3. **🔑 Mistral API Key**:
-   - Sign up at [mistral.ai](https://mistral.ai)
-   - Get your API key from the dashboard
+## System Requirements
 
-## 🛠️ Setup
+### Core Dependencies
+1. **Node.js Runtime**: Version 18+ ([nodejs.org](https://nodejs.org/))
+2. **Python Package Manager**: [uv](https://docs.astral.sh/uv/getting-started/installation/)
+3. **Mistral API Access**: Active API key from [mistral.ai](https://mistral.ai)
 
-1. **📥 Clone the repository**:
+### Installation Verification
+```bash
+node --version
+npm --version
+```
+
+## Implementation
+
+### Environment Configuration
+1. **Repository Setup**:
    ```bash
    git clone https://github.com/smypmsa/mistral-annot.git
    cd mistral-annot
    ```
 
-2. **⚙️ Configure environment**:
+2. **API Configuration**:
    ```bash
-   # Unix/Mac
+   # Unix/macOS
    echo "MISTRAL_API_KEY=your_key_here" > .env
    mkdir -p data/input data/output
 
@@ -41,52 +48,49 @@
    mkdir data\input data\output
    ```
 
-3. **🐍 Set up backend**:
+3. **Backend Initialization**:
    ```bash
    cd apps/backend
    uv sync
    cd ../..
    ```
 
-4. **💻 Set up frontend**:
+4. **Frontend Setup**:
    ```bash
    cd apps/frontend
    npm install
    cd ../..
    ```
 
-## 🚀 Running the Application
+### System Deployment
 
-1. **🔧 Start the backend** (in a terminal):
-   ```bash
-   cd apps/backend
-   uv run main.py
-   ```
+**Backend Service** (Terminal 1):
+```bash
+cd apps/backend
+uv run main.py
+```
 
-2. **🌐 Start the frontend** (in another terminal):
-   ```bash
-   cd apps/frontend
-   npm run dev
-   ```
+**Frontend Interface** (Terminal 2):
+```bash
+cd apps/frontend
+npm run dev
+```
 
-3. **🎉 Access the app**:
-   - Open your browser to [http://localhost:3000](http://localhost:3000)
-   - Upload PDF invoices through the modern web interface
-   - See the extracted data instantly
+**Access Point**: [http://localhost:3000](http://localhost:3000)
 
-## ✨ Features
+## Data Extraction Capabilities
 
-The application automatically extracts:
-- 📝 Invoice numbers
-- 📅 Dates
-- 🏢 Vendor information
-- 📋 Line items
-- 💰 Total amounts
+**Automated Field Recognition**:
+- Invoice identification numbers
+- Transaction dates and periods  
+- Vendor and supplier information
+- Itemized line entries
+- Financial totals and calculations
 
-## 🧪 Try it out
+## Validation Process
 
-Ready to test? Sample invoices are included in the `data/input` directory:
-1. 🌐 Open [http://localhost:3000](http://localhost:3000) in your browser
-2. 📤 Click the upload button
-3. 📂 Select a sample PDF from `data/input`
-4. ✨ Watch as the data is automatically extracted and displayed
+Sample documents provided in `data/input` directory for immediate testing and validation of extraction accuracy.
+
+## Operational Benefits
+
+Reduces manual data entry overhead while maintaining high accuracy standards for financial document processing workflows.
